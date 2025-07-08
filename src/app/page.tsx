@@ -2,10 +2,14 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import '@uimaxbai/am-lyrics/am-lyrics.js';
 
 const AmLyrics = dynamic(
-  () => import('@uimaxbai/am-lyrics/react').then((mod) => mod.AmLyrics),
+  () => {
+    // Dynamically import the custom element
+    import('@uimaxbai/am-lyrics/am-lyrics.js');
+    // Then import the React component
+    return import('@uimaxbai/am-lyrics/react').then((mod) => mod.AmLyrics);
+  },
   { ssr: false }
 );
 
