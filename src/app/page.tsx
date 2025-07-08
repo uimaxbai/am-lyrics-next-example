@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, memo } from 'react';
 import dynamic from 'next/dynamic';
 
 const AmLyrics = dynamic(
@@ -12,6 +12,8 @@ const AmLyrics = dynamic(
   },
   { ssr: false }
 );
+
+const MemoizedAmLyrics = memo(AmLyrics);
 
 export default function App() {
   const [currentTime, setCurrentTime] = useState(0);
@@ -25,6 +27,7 @@ export default function App() {
     let animationFrameId: number;
 
     const updateCurrentTime = () => {
+      console.log("update")
       setCurrentTime(audio.currentTime * 1000);
       animationFrameId = requestAnimationFrame(updateCurrentTime);
     };
@@ -37,19 +40,19 @@ export default function App() {
       cancelAnimationFrame(animationFrameId);
     };
 
-    const handleTimeUpdate = () => {
-      setCurrentTime(audio.currentTime * 1000); // Convert to milliseconds
-    };
-
     audio.addEventListener('play', handlePlay);
     audio.addEventListener('pause', handlePause);
-    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('seeking', () => {
+      setCurrentTime(audio.currentTime * 1000);
+    });
 
     return () => {
       cancelAnimationFrame(animationFrameId);
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('seeking', () => {
+        setCurrentTime(audio.currentTime * 1000);
+      });
     };
   }, []);
 
@@ -66,7 +69,7 @@ export default function App() {
   return (
     <div>
       <audio ref={audioRef} src="/uptown_funk.flac" controls />
-        <AmLyrics
+        <MemoizedAmLyrics
           query="Uptown Funk"
           currentTime={currentTime}
           onLineClick={handleLineClick}
