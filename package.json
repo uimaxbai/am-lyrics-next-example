@@ -11,7 +11,7 @@
   "dependencies": {
     "@lit-labs/nextjs": "^0.2.3",
     "@lit/react": "^1.0.7",
-    "@uimaxbai/am-lyrics": "^0.4.0",
+    "@uimaxbai/am-lyrics": "^0.4.1",
     "next": "15.3.5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"

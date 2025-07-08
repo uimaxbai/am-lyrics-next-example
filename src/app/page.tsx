@@ -24,35 +24,37 @@ export default function App() {
     const audio = audioRef.current;
     if (!audio) return;
 
-    let animationFrameId: number;
+    let intervalId: any = null;
 
     const updateCurrentTime = () => {
-      console.log("update")
       setCurrentTime(audio.currentTime * 1000);
-      animationFrameId = requestAnimationFrame(updateCurrentTime);
     };
 
     const handlePlay = () => {
-      animationFrameId = requestAnimationFrame(updateCurrentTime);
+      if (intervalId) clearInterval(intervalId);
+      intervalId = setInterval(updateCurrentTime, 10);
     };
 
-    const handlePause = () => {
-      cancelAnimationFrame(animationFrameId);
+    const handlePauseOrEnd = () => {
+      clearInterval(intervalId);
+      intervalId = null;
+    };
+
+    const handleSeeking = () => {
+      setCurrentTime(audio.currentTime * 1000);
     };
 
     audio.addEventListener('play', handlePlay);
-    audio.addEventListener('pause', handlePause);
-    audio.addEventListener('seeking', () => {
-      setCurrentTime(audio.currentTime * 1000);
-    });
+    audio.addEventListener('pause', handlePauseOrEnd);
+    audio.addEventListener('ended', handlePauseOrEnd);
+    audio.addEventListener('seeking', handleSeeking);
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      clearInterval(intervalId);
       audio.removeEventListener('play', handlePlay);
-      audio.removeEventListener('pause', handlePause);
-      audio.removeEventListener('seeking', () => {
-        setCurrentTime(audio.currentTime * 1000);
-      });
+      audio.removeEventListener('pause', handlePauseOrEnd);
+      audio.removeEventListener('ended', handlePauseOrEnd);
+      audio.removeEventListener('seeking', handleSeeking);
     };
   }, []);
 
